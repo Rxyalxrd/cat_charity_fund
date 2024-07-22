@@ -4,7 +4,7 @@ from .base_model import BaseModel
 from app.constants import MAX_LENGTH_FOR_NAME
 
 
-class CharityProjects(BaseModel):
+class CharityProject(BaseModel):
     """Модель проектов, доп. поля наследуются от BaseModel"""
 
     name = Column(String(MAX_LENGTH_FOR_NAME), unique=True, nullable=False)

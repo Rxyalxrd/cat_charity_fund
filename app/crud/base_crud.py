@@ -1,10 +1,10 @@
-from typing import Union, Optional
+from typing import Union
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 
-from app.models import CharityProjects, Donations, Users
+from app.models import CharityProject, Donation, User
 
 
 class CRUD:
@@ -12,16 +12,16 @@ class CRUD:
 
     def __init__(
         self,
-        model: Union[CharityProjects, Donations, Users]
+        model: type[Union[CharityProject, Donation, User]]
     ) -> None:
 
         self.model = model
 
     async def create(
         self,
-        request: Union[CharityProjects, Donations, Users],
+        request,
         session: AsyncSession
-    ) -> Union[CharityProjects, Donations, Users]:
+    ):
         """Создание новой записи в БД"""
 
         data_in_request = request.dict()
@@ -36,7 +36,7 @@ class CRUD:
         self,
         record_id: int,
         session: AsyncSession
-    ) -> Optional[Union[CharityProjects, Donations, Users]]:
+    ):
         """Чтение записи из БД по ID"""
 
         response = await session.get(self.model, record_id)
@@ -46,7 +46,7 @@ class CRUD:
     async def read_all(
         self,
         session: AsyncSession
-    ) -> Optional[Union[CharityProjects, Donations, Users]]:
+    ):
         """Чтение всех записей из БД"""
 
         all_records = await session.execute(select(self.model))
@@ -55,10 +55,10 @@ class CRUD:
 
     async def update(
         self,
-        db_record: Union[CharityProjects, Donations, Users],
-        request: Union[CharityProjects, Donations, Users],
+        db_record,
+        request,
         session: AsyncSession
-    ) -> Union[CharityProjects, Donations, Users]:
+    ):
         """Обновление записи в БД"""
 
         db_record_data = jsonable_encoder(db_record)
@@ -75,9 +75,9 @@ class CRUD:
 
     async def delete(
         self,
-        model_in_db: Union[CharityProjects, Donations, Users],
+        model_in_db,
         session: AsyncSession
-    ) -> Union[CharityProjects, Donations, Users]:
+    ):
         """Удаление записи из БД"""
 
         await session.delete(model_in_db)

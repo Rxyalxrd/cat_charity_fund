@@ -3,7 +3,7 @@ from sqlalchemy import Column, ForeignKey, Integer, Text
 from .base_model import BaseModel
 
 
-class Donations(BaseModel):
+class Donation(BaseModel):
     """Модель пожертвований, доп. поля наследуются от BaseModel"""
 
     user_id = Column(
