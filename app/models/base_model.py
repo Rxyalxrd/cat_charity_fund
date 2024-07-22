@@ -3,13 +3,20 @@ from datetime import datetime
 from sqlalchemy import Boolean, Column, DateTime, Integer
 
 from app.core.db import Base
+from app.constants import DEFAULT_INVESTED_AMOUNT
 
 
 class BaseModel(Base):
-    """Базовая модель для projects.py и donations.py"""
+    """Базовая абстрактная модель родителя
+    для моделей проекта и пожертвования."""
+    __abstract__ = True
 
-    full_amount = Column(...)
-    invested_amount = Column(...)
-    fully_invested = Column(...)
-    create_date = Column(...)
-    close_date = Column(...)
+    full_amount = Column(Integer, nullable=False)
+    invested_amount = Column(
+        Integer,
+        nullable=False,
+        default=DEFAULT_INVESTED_AMOUNT,
+    )
+    fully_invested = Column(Boolean, nullable=False, default=False)
+    create_date = Column(DateTime, nullable=False, default=datetime.now)
+    close_date = Column(DateTime)

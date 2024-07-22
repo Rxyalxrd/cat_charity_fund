@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 
-from models import CharityProjects, Donations, Users
+from app.models import CharityProjects, Donations, Users
 
 
 class CRUD:
