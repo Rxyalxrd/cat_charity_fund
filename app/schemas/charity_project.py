@@ -22,6 +22,7 @@ class CharityProjectsUpdate(BaseCharityProjectsSchemas):
 
     class Config:
         title = 'Схема проектов для POST запросов'
+        orm_mode = True
         schema_extra = {
             'example': {
                 'name': '2 котикам на курсы',
@@ -42,6 +43,7 @@ class CharityProjectsRead(BaseCharityProjectsSchemas):
 
     class Config:
         title = 'Схема проекта для получения'
+        orm_mode = True
         schema_extra = {
             'example': {
                 'name': 'Песики - наше все',

@@ -29,7 +29,7 @@ class UserDonationsRead(BaseDonationsSchemas):
 
     class Config:
         title = 'Схема пожертвования для получения'
-
+        orm_mode = True
         schema_extra = {
             'example': {
                 'comment': 'От всей души',
@@ -40,7 +40,7 @@ class UserDonationsRead(BaseDonationsSchemas):
         }
 
 
-class DonationDBSuper(BaseDonationsSchemas):
+class SuperUserDonationRead(BaseDonationsSchemas):
     """
     Только для суперюзеров.
     Схема для возврата списока всех пожертвований.
@@ -53,7 +53,7 @@ class DonationDBSuper(BaseDonationsSchemas):
 
     class Config:
         title = 'Схема пожертвования для получения (advanced)'
-
+        orm_mode = True
         schema_extra = {
             'example': {
                 'comment': 'От всей души',

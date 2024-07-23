@@ -26,6 +26,7 @@ class CRUD:
 
         data_in_request = request.dict()
         data_to_db = self.model(**data_in_request)
+
         session.add(data_to_db)
         await session.commit()
         await session.refresh(data_to_db)
@@ -75,7 +76,7 @@ class CRUD:
 
     async def delete(
         self,
-        model_in_db,
+        model_in_db: type[Union[CharityProject, Donation, User]],
         session: AsyncSession
     ):
         """Удаление записи из БД"""

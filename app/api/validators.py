@@ -13,7 +13,7 @@ async def project_name_exist(
 ) -> None:
     """Проверка уникальности названия проекта"""
 
-    project_id = await charity_project_crud.get_project_id_by_name(
+    project_id: int | None = await charity_project_crud.get_project_id_by_name(
         project_name, session
     )
 
@@ -30,7 +30,7 @@ async def project_exist(
 ) -> CharityProject:
     """Проверка существования проекта"""
 
-    charity_project = await charity_project_crud.read(
+    charity_project: CharityProject = await charity_project_crud.read(
         project_id, session
     )
 
@@ -49,7 +49,7 @@ async def project_with_donations(
 ) -> CharityProject:
     """Проверка на удаление проекта, который начал сбор средств"""
 
-    charity_project = await charity_project_crud.read(
+    charity_project: CharityProject = await charity_project_crud.read(
         project_id, session
     )
 
@@ -69,7 +69,7 @@ async def full_amount_lower_then_invested(
 ) -> CharityProject:
     """Проверка на изменение суммы сбора средтсв"""
 
-    charity_project = await charity_project_crud.read(
+    charity_project: CharityProject = await charity_project_crud.read(
         project_id, session
     )
 
@@ -85,13 +85,13 @@ async def full_amount_lower_then_invested(
     return charity_project
 
 
-async def edit_closed_project(
+async def is_closed_project(
         project_id: int,
         session: AsyncSession
 ) -> CharityProject:
     """Проверка на изменения закрытого проекта"""
 
-    charity_project = await charity_project_crud.read(
+    charity_project: CharityProject = await charity_project_crud.read(
         project_id, session
     )
 
