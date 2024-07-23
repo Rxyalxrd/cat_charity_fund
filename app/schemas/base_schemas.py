@@ -5,12 +5,12 @@ from pydantic import BaseModel, Field, PositiveInt
 from app.constants import MAX_LENGTH_FOR_NAME
 
 
-class PreBaseSchemasMixin:
+class PreBaseSchemasMixin(BaseModel):
 
     full_amount: PositiveInt = Field(..., title='Сумма пожертвования')
 
 
-class BaseDonationsSchemas(PreBaseSchemasMixin, BaseModel):
+class BaseDonationsSchemas(PreBaseSchemasMixin):
 
     comment: Optional[str] = Field(None, title='Комментарий к пожертвоанию')
 
@@ -19,7 +19,7 @@ class BaseDonationsSchemas(PreBaseSchemasMixin, BaseModel):
         title = 'Базовая схема для пожертвований'
 
 
-class BaseCharityProjectsSchemas(PreBaseSchemasMixin, BaseModel):
+class BaseCharityProjectsSchemas(PreBaseSchemasMixin):
 
     name: str = Field(
         ..., title='Название проекта', max_length=MAX_LENGTH_FOR_NAME

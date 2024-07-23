@@ -44,14 +44,9 @@ async def project_exist(
 
 
 async def project_with_donations(
-        project_id: int,
-        session: AsyncSession
+        charity_project: CharityProject
 ) -> CharityProject:
     """Проверка на удаление проекта, который начал сбор средств"""
-
-    charity_project: CharityProject = await charity_project_crud.read(
-        project_id, session
-    )
 
     if charity_project.invested_amount > 0:
         raise HTTPException(

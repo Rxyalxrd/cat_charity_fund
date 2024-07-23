@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional, Union
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.encoders import jsonable_encoder
@@ -20,11 +20,16 @@ class CRUD:
     async def create(
         self,
         request,
-        session: AsyncSession
+        session: AsyncSession,
+        user: Optional[User] = None
     ):
         """Создание новой записи в БД"""
 
         data_in_request = request.dict()
+
+        if user is not None:
+            data_in_request['user_id'] = user.id
+
         data_to_db = self.model(**data_in_request)
 
         session.add(data_to_db)
@@ -83,4 +88,5 @@ class CRUD:
 
         await session.delete(model_in_db)
         await session.commit()
+
         return model_in_db
