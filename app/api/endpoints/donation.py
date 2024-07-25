@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.donation import donation_crud
@@ -7,7 +7,7 @@ from app.core.user import current_superuser, current_user
 from app.schemas.donation import (
     DonationCreate, UserDonationsRead, SuperUserDonationRead
 )
-from app.models import User, Donation, CharityProject
+from app.models import User, CharityProject
 
 router = APIRouter()
 
@@ -60,11 +60,11 @@ async def create_donation(
     """Создание пожертвования."""
 
     new_donation = await donation_crud.create(donation, session, user)
-    open_charity_project = await donation_crud.get_invested_charity_project(
+    open_charity_project = await donation_crud.get_invested_charity_projects(
         CharityProject, session
     )
 
-    donation_crud.funds_distribution(open_charity_project, new_donation)
+    donation_crud.distribution_of_resources(open_charity_project, new_donation)
 
     await session.commit()
     await session.refresh(new_donation)

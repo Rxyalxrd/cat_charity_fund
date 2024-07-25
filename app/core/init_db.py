@@ -18,13 +18,10 @@ async def create_user(
         email: EmailStr, password: str, is_superuser: bool = False
 ):
     try:
-        # Получение объекта асинхронной сессии.
         async with get_async_session_context() as session:
-            # Получение объекта класса SQLAlchemyUserDatabase.
             async with get_user_db_context(session) as user_db:
-                # Получение объекта класса UserManager.
                 async with get_user_manager_context(user_db) as user_manager:
-                    # Создание пользователя.
+
                     await user_manager.create(
                         UserCreate(
                             email=email,

@@ -9,6 +9,7 @@ from app.constants import DEFAULT_INVESTED_AMOUNT
 class BaseModel(Base):
     """Базовая абстрактная модель родителя
     для моделей проекта и пожертвования."""
+
     __abstract__ = True
 
     full_amount = Column(Integer, nullable=False)

@@ -1,11 +1,11 @@
+from typing import Optional, Union, Type
 from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .base_crud import CRUD
-from app.models.donation import Donation
-# from app.models.user import User
+from app.models import CharityProject, Donation
 
 
 class CRUDDonation(CRUD):
@@ -16,7 +16,7 @@ class CRUDDonation(CRUD):
         user_id: int,
         session: AsyncSession
     ):
-        """Поиск пожертвований по id пользователя"""
+        """Поиск пожертвований по id пользователя."""
 
         donations = await session.execute(
             select(Donation).where(Donation.user_id == user_id)
@@ -24,34 +24,53 @@ class CRUDDonation(CRUD):
 
         return donations.scalars().all()
 
-    def funds_distribution(
+    def distribution_of_resources(
             self,
-            opened_items,
-            funds,
-    ):
-        if opened_items:
-            for item in opened_items:
+            project_or_donation: Optional[Union[CharityProject, Donation]],
+            funds: Union[CharityProject, Donation],
+    ) -> Union[CharityProject, Donation]:
+        """Распределине средств."""
+
+        if project_or_donation:
+            for item in project_or_donation:
                 funds_diff = funds.full_amount - funds.invested_amount
                 item_diff = item.full_amount - item.invested_amount
+
                 if funds_diff >= item_diff:
                     funds.invested_amount += item_diff
                     item.invested_amount = item.full_amount
                     self.close_invested(item)
+
                     if funds_diff == item_diff:
                         self.close_invested(funds)
+
                 else:
                     item.invested_amount += funds_diff
                     funds.invested_amount = funds.full_amount
                     self.close_invested(funds)
                     break
+
         return funds
 
-    def close_invested(self, item):
-        item.fully_invested = True
-        item.close_date = datetime.now()
-        return item
+    def close_invested(
+            self,
+            project_or_donation: Union[CharityProject, Donation]
+    ) -> Union[CharityProject, Donation]:
+        """Завершение сбора средств или транзакции."""
 
-    async def get_invested_charity_project(self, charity_project, session: AsyncSession):
+        project_or_donation.fully_invested = True
+        project_or_donation.close_date = datetime.now()
+        return project_or_donation
+
+    async def get_invested_charity_projects(
+            self,
+            charity_project: Type[Union[CharityProject, Donation]],
+            session: AsyncSession
+    ) -> Optional[list[Union[CharityProject, Donation]]]:
+        """
+        Получение всех проектов, в которые нужно инвестировать
+        или средств, которые не были проинвестированны."""
+
         invested_projects = await session.execute(
             select(charity_project).where(
                 charity_project.fully_invested == 0

@@ -2,7 +2,7 @@ from typing import Optional
 from datetime import datetime
 from pydantic import Field, validator, PositiveInt, Extra
 from .base_schemas import BaseCharityProjectsSchemas
-from app.constants import MAX_LENGTH_FOR_NAME
+from app.constants import MAX_LENGTH_FOR_NAME, MIN_LENGTH_FOR_NAME
 
 
 class CharityProjectsCreate(BaseCharityProjectsSchemas):
@@ -48,7 +48,10 @@ class CharityProjectsUpdate(BaseCharityProjectsSchemas):
     """Схема для обновления проекта"""
 
     name: str = Field(
-        None, title='Название проекта', min_length=1, max_length=MAX_LENGTH_FOR_NAME
+        None,
+        title='Название проекта',
+        min_length=MIN_LENGTH_FOR_NAME,
+        max_length=MAX_LENGTH_FOR_NAME
     )
     description: str = Field(None, title='Описание проекта')
     full_amount: PositiveInt = Field(None, title='Сумма пожертвования')

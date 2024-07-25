@@ -1,5 +1,5 @@
 from typing import Optional, Union
-
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
@@ -8,7 +8,7 @@ from app.models import CharityProject, Donation, User
 
 
 class CRUD:
-    """Реализация работы с БД: Create, Read, Update, Delete"""
+    """Реализация работы с БД: Create, Read, ReadAll, Update, Delete."""
 
     def __init__(
         self,
@@ -19,11 +19,11 @@ class CRUD:
 
     async def create(
         self,
-        request,
+        request: BaseModel,
         session: AsyncSession,
         user: Optional[User] = None
     ):
-        """Создание новой записи в БД"""
+        """Создание новой записи в БД."""
 
         data_in_request = request.dict()
 
@@ -43,7 +43,7 @@ class CRUD:
         record_id: int,
         session: AsyncSession
     ):
-        """Чтение записи из БД по ID"""
+        """Чтение записи из БД по ID."""
 
         response = await session.get(self.model, record_id)
 
@@ -53,7 +53,7 @@ class CRUD:
         self,
         session: AsyncSession
     ):
-        """Чтение всех записей из БД"""
+        """Чтение всех записей из БД."""
 
         all_records = await session.execute(select(self.model))
 
@@ -61,11 +61,11 @@ class CRUD:
 
     async def update(
         self,
-        db_record,
-        request,
+        db_record: type[Union[CharityProject, Donation, User]],
+        request: BaseModel,
         session: AsyncSession
     ):
-        """Обновление записи в БД"""
+        """Обновление записи в БД."""
 
         db_record_data = jsonable_encoder(db_record)
         update_data = request.dict(exclude_unset=True)
@@ -84,7 +84,7 @@ class CRUD:
         model_in_db: type[Union[CharityProject, Donation, User]],
         session: AsyncSession
     ):
-        """Удаление записи из БД"""
+        """Удаление записи из БД."""
 
         await session.delete(model_in_db)
         await session.commit()

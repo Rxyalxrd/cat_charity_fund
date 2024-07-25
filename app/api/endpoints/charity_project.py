@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,7 +25,7 @@ router = APIRouter()
 async def get_all_projects(
     session: AsyncSession = Depends(get_async_session)
 ):
-    """Возвращает список всех проектов"""
+    """Возвращает список всех проектов."""
 
     all_projects = await charity_project_crud.read_all(session)
 
@@ -45,8 +43,8 @@ async def create_new_charity_projects(
     session: AsyncSession = Depends(get_async_session)
 ):
     """
-    Только для суперюзеров
-    Создаёт благотворительный проект
+    Только для суперюзеров.
+    Создаёт благотворительный проект.
     """
 
     await project_name_exist(charity_project.name, session)
@@ -54,11 +52,11 @@ async def create_new_charity_projects(
     new_charity_project = await charity_project_crud.create(
         charity_project, session
     )
-    new_donate = await donation_crud.get_invested_charity_project(
+    new_donate = await donation_crud.get_invested_charity_projects(
         Donation, session
     )
 
-    donation_crud.funds_distribution(new_donate, new_charity_project)
+    donation_crud.distribution_of_resources(new_donate, new_charity_project)
 
     await session.commit()
     await session.refresh(new_charity_project)
@@ -78,10 +76,10 @@ async def update_charity_project(
     session: AsyncSession = Depends(get_async_session)
 ):
     """
-    Только для суперюзеров
-    Обновление данных в проекте
-    Закрытый проект нельзя
-    Нельзя установить требуемую сумму меньше уже вложенной
+    Только для суперюзеров.
+    Обновление данных в проекте.
+    Закрытый проект нельзя.
+    Нельзя установить требуемую сумму меньше уже вложенной.
     """
 
     charity_project = await project_exist(project_id, session)

@@ -11,7 +11,7 @@ async def project_name_exist(
         project_name: str,
         session: AsyncSession
 ) -> None:
-    """Проверка уникальности названия проекта"""
+    """Проверка уникальности названия проекта."""
 
     project_id: int | None = await charity_project_crud.get_project_id_by_name(
         project_name, session
@@ -28,7 +28,7 @@ async def project_exist(
         project_id: int,
         session: AsyncSession
 ) -> CharityProject:
-    """Проверка существования проекта"""
+    """Проверка существования проекта."""
 
     charity_project: CharityProject = await charity_project_crud.read(
         project_id, session
@@ -37,7 +37,7 @@ async def project_exist(
     if not charity_project:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
-            detail="Проект не найден"
+            detail="Проект не найден."
         )
 
     return charity_project
@@ -46,7 +46,7 @@ async def project_exist(
 async def project_with_donations(
         charity_project: CharityProject
 ) -> CharityProject:
-    """Проверка на удаление проекта, который начал сбор средств"""
+    """Проверка на удаление проекта, который начал сбор средств."""
 
     if charity_project.invested_amount > 0:
         raise HTTPException(
@@ -62,7 +62,7 @@ async def full_amount_lower_then_invested(
         amount: int,
         session: AsyncSession
 ) -> CharityProject:
-    """Проверка на изменение суммы сбора средтсв"""
+    """Проверка на изменение суммы сбора средтсв."""
 
     charity_project: CharityProject = await charity_project_crud.read(
         project_id, session
@@ -84,7 +84,7 @@ async def is_closed_project(
         project_id: int,
         session: AsyncSession
 ) -> CharityProject:
-    """Проверка на изменения закрытого проекта"""
+    """Проверка на изменения закрытого проекта."""
 
     charity_project: CharityProject = await charity_project_crud.read(
         project_id, session
