@@ -1,7 +1,8 @@
+from typing import Optional
 from datetime import datetime
-from pydantic import Field, validator
-
+from pydantic import Field, validator, PositiveInt, Extra
 from .base_schemas import BaseCharityProjectsSchemas
+from app.constants import MAX_LENGTH_FOR_NAME
 
 
 class CharityProjectsCreate(BaseCharityProjectsSchemas):
@@ -9,6 +10,7 @@ class CharityProjectsCreate(BaseCharityProjectsSchemas):
 
     class Config:
         title = 'Схема проектов для POST запросов'
+        extra = Extra.forbid
         schema_extra = {
             'example': {
                 'name': 'Котику на курсы',
@@ -45,9 +47,16 @@ class CharityProjectsCreate(BaseCharityProjectsSchemas):
 class CharityProjectsUpdate(BaseCharityProjectsSchemas):
     """Схема для обновления проекта"""
 
+    name: str = Field(
+        None, title='Название проекта', min_length=1, max_length=MAX_LENGTH_FOR_NAME
+    )
+    description: str = Field(None, title='Описание проекта')
+    full_amount: PositiveInt = Field(None, title='Сумма пожертвования')
+
     class Config:
         title = 'Схема проектов для POST запросов'
         orm_mode = True
+        extra = Extra.forbid
         schema_extra = {
             'example': {
                 'name': '2 котикам на курсы',
@@ -56,15 +65,31 @@ class CharityProjectsUpdate(BaseCharityProjectsSchemas):
             }
         }
 
+    @validator('name')
+    def name_cannot_be_null(cls, value: str):
+
+        if not value:
+            raise ValueError('Название проекта не может быть пустым!')
+
+        return value
+
+    @validator('description')
+    def description_can_not_be_null(cls, value: str):
+
+        if not value:
+            raise ValueError('Описание проекта не может быть пустым!')
+
+        return value
+
 
 class CharityProjectsRead(BaseCharityProjectsSchemas):
     """Схема для чтения проекта"""
 
     id: int = Field(..., title='id пользователя')
     invested_amount: int = Field(..., title='Отправленная сумма')
-    fully_invested: bool = Field(..., title='Собрана ли сумма')
+    fully_invested: bool = Field(False, title='Собрана ли сумма')
     create_date: datetime = Field(..., title='Время создания')
-    close_date: datetime = Field(None, title='Время завершения')
+    close_date: Optional[datetime] = Field(None, title='Время завершения')
 
     class Config:
         title = 'Схема проекта для получения'

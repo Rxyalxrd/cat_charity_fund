@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.donation import donation_crud
@@ -7,7 +7,7 @@ from app.core.user import current_superuser, current_user
 from app.schemas.donation import (
     DonationCreate, UserDonationsRead, SuperUserDonationRead
 )
-from app.models import User, Donation
+from app.models import User, Donation, CharityProject
 
 router = APIRouter()
 
@@ -32,7 +32,7 @@ async def get_all_donations(
 
 
 @router.get(
-    '/me',
+    '/my',
     response_model=list[UserDonationsRead],
     response_model_exclude_none=True,
 )
@@ -60,5 +60,16 @@ async def create_donation(
     """Создание пожертвования."""
 
     new_donation = await donation_crud.create(donation, session, user)
+    # open_charity_project = await donation_crud.get_invested_charity_project(
+    #     CharityProject, session
+    # )
+    
+    # if open_charity_project:
+    #     # Распределение пожертвования по благотворительному проекту
+    #     await donation_crud.donate_in_charity_project(
+    #         open_charity_project, new_donation, session
+    #     )
+    # else:
+    #     raise HTTPException(status_code=404, detail="No open charity projects available for investment")
 
     return new_donation

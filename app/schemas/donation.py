@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import Field
+from pydantic import Field, Extra
 
 from .base_schemas import BaseDonationsSchemas
 
@@ -11,6 +11,7 @@ class DonationCreate(BaseDonationsSchemas):
 
     class Config:
         title = 'Схема пожертвования для создания'
+        extra = Extra.forbid
         schema_extra = {
             'example': {
                 'comment': 'От всей души',
@@ -32,15 +33,15 @@ class UserDonationsRead(BaseDonationsSchemas):
         orm_mode = True
         schema_extra = {
             'example': {
-                'comment': 'От всей души',
                 'full_amount': 450,
+                'comment': 'От всей души',
                 'id': 2,
                 'create_date': '2023-07-21T23:54:05.177Z'
             }
         }
 
 
-class SuperUserDonationRead(BaseDonationsSchemas):
+class SuperUserDonationRead(UserDonationsRead):
     """
     Только для суперюзеров.
     Схема для возврата списока всех пожертвований.

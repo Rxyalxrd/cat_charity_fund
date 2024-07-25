@@ -68,7 +68,7 @@ async def full_amount_lower_then_invested(
         project_id, session
     )
 
-    if charity_project.full_amount < amount:
+    if charity_project.invested_amount > amount:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
             detail=(

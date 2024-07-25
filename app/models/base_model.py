@@ -19,4 +19,4 @@ class BaseModel(Base):
     )
     fully_invested = Column(Boolean, nullable=False, default=False)
     create_date = Column(DateTime, nullable=False, default=datetime.now)
-    close_date = Column(DateTime)
+    close_date = Column(DateTime, default=None)

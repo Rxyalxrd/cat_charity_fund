@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.charity_project import charity_project_crud
+from app.crud.donation import donation_crud
 from app.schemas.charity_project import (
     CharityProjectsRead, CharityProjectsCreate, CharityProjectsUpdate
 )
@@ -87,6 +90,12 @@ async def update_charity_project(
     charity_project = await charity_project_crud.update(
         charity_project, new_data, session
     )
+
+    if new_data.full_amount == charity_project.invested_amount:
+        donation_crud.close_invested(charity_project)
+
+        await session.commit()
+        await session.refresh(charity_project)
 
     return charity_project
 
