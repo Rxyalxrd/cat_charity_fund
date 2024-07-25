@@ -24,33 +24,27 @@ class CRUDDonation(CRUD):
 
         return donations.scalars().all()
 
-    def donate_in_charity_project(self, charity_project, donation, session):
-        if charity_project.close_date is None:
-            # Рассчитываем оставшиеся суммы для проекта и пожертвования
-            remaining_funds = donation.full_amount - donation.invested_amount
-            remaining_project_need = charity_project.full_amount - charity_project.invested_amount
-
-            # Обновляем суммы инвестиций
-            amount_to_invest = min(remaining_funds, remaining_project_need)
-            charity_project.invested_amount += amount_to_invest
-            donation.invested_amount += amount_to_invest
-
-            # Закрываем проект, если он полностью профинансирован
-            if charity_project.invested_amount >= charity_project.full_amount:
-                self.close_invested(charity_project)
-
-            # Закрываем пожертвование, если оно полностью израсходовано
-            if donation.invested_amount >= donation.full_amount:
-                self.close_invested(donation)
-
-            # Сохраняем изменения в базе данных
-            session.add(charity_project)
-            session.add(donation)
-            session.commit()
-            session.refresh(charity_project)
-            session.refresh(donation)
-
-        return charity_project
+    def funds_distribution(
+            self,
+            opened_items,
+            funds,
+    ):
+        if opened_items:
+            for item in opened_items:
+                funds_diff = funds.full_amount - funds.invested_amount
+                item_diff = item.full_amount - item.invested_amount
+                if funds_diff >= item_diff:
+                    funds.invested_amount += item_diff
+                    item.invested_amount = item.full_amount
+                    self.close_invested(item)
+                    if funds_diff == item_diff:
+                        self.close_invested(funds)
+                else:
+                    item.invested_amount += funds_diff
+                    funds.invested_amount = funds.full_amount
+                    self.close_invested(funds)
+                    break
+        return funds
 
     def close_invested(self, item):
         item.fully_invested = True
@@ -58,12 +52,12 @@ class CRUDDonation(CRUD):
         return item
 
     async def get_invested_charity_project(self, charity_project, session: AsyncSession):
-        invested_project = await session.execute(
+        invested_projects = await session.execute(
             select(charity_project).where(
                 charity_project.fully_invested == 0
             ).order_by(charity_project.create_date)
         )
-        return invested_project.scalars().first()
+        return invested_projects.scalars().all()
 
 
 donation_crud = CRUDDonation(Donation)

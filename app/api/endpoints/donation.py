@@ -60,16 +60,13 @@ async def create_donation(
     """Создание пожертвования."""
 
     new_donation = await donation_crud.create(donation, session, user)
-    # open_charity_project = await donation_crud.get_invested_charity_project(
-    #     CharityProject, session
-    # )
-    
-    # if open_charity_project:
-    #     # Распределение пожертвования по благотворительному проекту
-    #     await donation_crud.donate_in_charity_project(
-    #         open_charity_project, new_donation, session
-    #     )
-    # else:
-    #     raise HTTPException(status_code=404, detail="No open charity projects available for investment")
+    open_charity_project = await donation_crud.get_invested_charity_project(
+        CharityProject, session
+    )
+
+    donation_crud.funds_distribution(open_charity_project, new_donation)
+
+    await session.commit()
+    await session.refresh(new_donation)
 
     return new_donation

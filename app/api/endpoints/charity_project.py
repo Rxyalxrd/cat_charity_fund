@@ -14,7 +14,7 @@ from app.api.validators import (
     project_exist, project_name_exist, project_with_donations,
     full_amount_lower_then_invested, is_closed_project
 )
-
+from app.models import Donation
 
 router = APIRouter()
 
@@ -54,6 +54,14 @@ async def create_new_charity_projects(
     new_charity_project = await charity_project_crud.create(
         charity_project, session
     )
+    new_donate = await donation_crud.get_invested_charity_project(
+        Donation, session
+    )
+
+    donation_crud.funds_distribution(new_donate, new_charity_project)
+
+    await session.commit()
+    await session.refresh(new_charity_project)
 
     return new_charity_project
 
@@ -90,12 +98,6 @@ async def update_charity_project(
     charity_project = await charity_project_crud.update(
         charity_project, new_data, session
     )
-
-    if new_data.full_amount == charity_project.invested_amount:
-        donation_crud.close_invested(charity_project)
-
-        await session.commit()
-        await session.refresh(charity_project)
 
     return charity_project
 
