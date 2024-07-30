@@ -1,12 +1,30 @@
 from typing import Optional
 from datetime import datetime
-from pydantic import Field, validator, PositiveInt, Extra
-from .base_schemas import BaseCharityProjectsSchemas
+from pydantic import BaseModel, Field, validator, PositiveInt, Extra
 from app.constants import MAX_LENGTH_FOR_NAME, MIN_LENGTH_FOR_NAME
+
+from .union_schemas_attrs import UnionAttrsInSchemas
+
+
+class BaseCharityProjectsSchemas(BaseModel):
+    """Базовая схема для проектов."""
+
+    name: str = Field(
+        ...,
+        title='Название проекта',
+        min_length=MIN_LENGTH_FOR_NAME,
+        max_length=MAX_LENGTH_FOR_NAME
+    )
+    description: str = Field(..., title='Описание проекта')
+    full_amount: PositiveInt = Field(..., title='Сумма пожертвования')
+
+    class Config:
+        extra = Extra.forbid
+        title = 'Базовая схема для проектов'
 
 
 class CharityProjectsCreate(BaseCharityProjectsSchemas):
-    """Схема для создания проекта"""
+    """Схема для создания проекта."""
 
     class Config:
         title = 'Схема проектов для POST запросов'
@@ -20,41 +38,37 @@ class CharityProjectsCreate(BaseCharityProjectsSchemas):
         }
 
     @validator('name')
-    def name_cannot_be_null(cls, value: str):
-
-        if not value:
+    def name_cannot_be_null(cls, name: str):
+        if not name:
             raise ValueError('Название проекта не может быть пустым!')
-
-        return value
+        return name
 
     @validator('description')
-    def description_can_not_be_null(cls, value: str):
-
-        if not value:
+    def description_cannot_be_null(cls, description: str):
+        if not description:
             raise ValueError('Описание проекта не может быть пустым!')
-
-        return value
+        return description
 
     @validator('full_amount')
-    def full_amount_can_not_be_lt_zero(cls, value: str):
-
-        if int(value) < 0:
+    def full_amount_cannot_be_lt_zero(cls, full_amount: int):
+        if full_amount < 0:
             raise ValueError('Сумма пожертвования должна быть > 0')
+        return full_amount
 
-        return value
 
+class CharityProjectsUpdate(BaseModel):
+    """Схема для обновления проекта."""
 
-class CharityProjectsUpdate(BaseCharityProjectsSchemas):
-    """Схема для обновления проекта"""
-
-    name: str = Field(
+    name: Optional[str] = Field(
         None,
         title='Название проекта',
         min_length=MIN_LENGTH_FOR_NAME,
         max_length=MAX_LENGTH_FOR_NAME
     )
-    description: str = Field(None, title='Описание проекта')
-    full_amount: PositiveInt = Field(None, title='Сумма пожертвования')
+    description: Optional[str] = Field(None, title='Описание проекта')
+    full_amount: Optional[PositiveInt] = Field(
+        None, title='Сумма пожертвования'
+    )
 
     class Config:
         title = 'Схема проектов для POST запросов'
@@ -69,30 +83,23 @@ class CharityProjectsUpdate(BaseCharityProjectsSchemas):
         }
 
     @validator('name')
-    def name_cannot_be_null(cls, value: str):
-
-        if not value:
+    def name_cannot_be_empty(cls, name: Optional[str]):
+        if name is not None and not name.strip():
             raise ValueError('Название проекта не может быть пустым!')
-
-        return value
+        return name
 
     @validator('description')
-    def description_can_not_be_null(cls, value: str):
-
-        if not value:
+    def description_cannot_be_empty(cls, description: Optional[str]):
+        if description is not None and not description.strip():
             raise ValueError('Описание проекта не может быть пустым!')
+        return description
 
-        return value
 
-
-class CharityProjectsRead(BaseCharityProjectsSchemas):
-    """Схема для чтения проекта"""
+class CharityProjectsRead(BaseCharityProjectsSchemas, UnionAttrsInSchemas):
+    """Схема для чтения проекта."""
 
     id: int = Field(..., title='id пользователя')
-    invested_amount: int = Field(..., title='Отправленная сумма')
-    fully_invested: bool = Field(False, title='Собрана ли сумма')
     create_date: datetime = Field(..., title='Время создания')
-    close_date: Optional[datetime] = Field(None, title='Время завершения')
 
     class Config:
         title = 'Схема проекта для получения'

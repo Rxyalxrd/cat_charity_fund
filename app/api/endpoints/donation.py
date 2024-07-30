@@ -16,19 +16,18 @@ router = APIRouter()
     '/',
     response_model=list[SuperUserDonationRead],
     response_model_exclude_none=True,
-    dependencies=[Depends(current_superuser)]
+    dependencies=(Depends(current_superuser),)
 )
 async def get_all_donations(
     session: AsyncSession = Depends(get_async_session)
 ):
     """
     Только для суперюзеров.
+
     Возвращает список всех пожертвований.
     """
 
-    all_donations = await donation_crud.read_all(session)
-
-    return all_donations
+    return await donation_crud.read_all(session)
 
 
 @router.get(
@@ -64,9 +63,8 @@ async def create_donation(
         CharityProject, session
     )
 
-    donation_crud.distribution_of_resources(open_charity_project, new_donation)
-
-    await session.commit()
-    await session.refresh(new_donation)
+    await donation_crud.distribution_of_resources(
+        open_charity_project, new_donation, session
+    )
 
     return new_donation

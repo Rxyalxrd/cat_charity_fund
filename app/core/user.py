@@ -69,7 +69,7 @@ async def get_user_manager(user_db=Depends(get_user_db)):
 
 fastapi_users = FastAPIUsers[User, int](
     get_user_manager,
-    [auth_backend],
+    (auth_backend,),
 )
 
 current_user = fastapi_users.current_user(active=True)

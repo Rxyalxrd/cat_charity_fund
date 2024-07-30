@@ -80,7 +80,7 @@ async def full_amount_lower_then_invested(
     return charity_project
 
 
-async def is_closed_project(
+async def ensure_project_open(
         project_id: int,
         session: AsyncSession
 ) -> CharityProject:

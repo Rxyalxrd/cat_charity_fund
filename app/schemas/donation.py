@@ -1,9 +1,20 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import Field, Extra
+from pydantic import BaseModel, Field, PositiveInt, Extra
 
-from .base_schemas import BaseDonationsSchemas
+from .union_schemas_attrs import UnionAttrsInSchemas
+
+
+class BaseDonationsSchemas(BaseModel):
+    """Базовая схема пожертвований."""
+
+    full_amount: PositiveInt = Field(..., title='Сумма пожертвования')
+    comment: Optional[str] = Field(None, title='Комментарий к пожертвоанию')
+
+    class Config:
+        extra = Extra.forbid
+        title = 'Базовая схема для пожертвований'
 
 
 class DonationCreate(BaseDonationsSchemas):
@@ -22,7 +33,8 @@ class DonationCreate(BaseDonationsSchemas):
 
 class UserDonationsRead(BaseDonationsSchemas):
     """
-    Схема для получения списка пожертвований пользователя, выполняющего запрос.
+    Схема для получения списка пожертвований
+    пользователя, выполняющего запрос.
     """
 
     id: int = Field(..., title='id пожертвования')
@@ -41,16 +53,14 @@ class UserDonationsRead(BaseDonationsSchemas):
         }
 
 
-class SuperUserDonationRead(UserDonationsRead):
+class SuperUserDonationRead(UserDonationsRead, UnionAttrsInSchemas):
     """
     Только для суперюзеров.
+
     Схема для возврата списока всех пожертвований.
     """
 
-    user_id: Optional[int] = Field(None, title='ID пользователя')
-    invested_amount: int = Field(..., title='Сколько вложено')
-    fully_invested: bool = Field(False, title='Вложена полная сумма')
-    close_date: Optional[datetime] = Field(None, title='Дата вложения')
+    user_id: int = Field(None, title='ID пользователя')
 
     class Config:
         title = 'Схема пожертвования для получения (advanced)'

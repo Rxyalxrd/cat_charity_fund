@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Optional, Union
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,15 +8,11 @@ from sqlalchemy import select
 from app.models import CharityProject, Donation, User
 
 
+@dataclass
 class CRUD:
     """Реализация работы с БД: Create, Read, ReadAll, Update, Delete."""
 
-    def __init__(
-        self,
-        model: type[Union[CharityProject, Donation, User]]
-    ) -> None:
-
-        self.model = model
+    model: Union[type[CharityProject], type[Donation], type[User]]
 
     async def create(
         self,
@@ -45,9 +42,7 @@ class CRUD:
     ):
         """Чтение записи из БД по ID."""
 
-        response = await session.get(self.model, record_id)
-
-        return response
+        return await session.get(self.model, record_id)
 
     async def read_all(
         self,

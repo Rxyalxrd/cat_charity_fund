@@ -1,4 +1,4 @@
-from typing import Optional, Union, Type
+from typing import Optional, Union
 from datetime import datetime
 
 from sqlalchemy import select
@@ -24,31 +24,46 @@ class CRUDDonation(CRUD):
 
         return donations.scalars().all()
 
-    def distribution_of_resources(
-            self,
-            project_or_donation: Optional[Union[CharityProject, Donation]],
-            funds: Union[CharityProject, Donation],
+    async def distribution_of_resources(
+        self,
+        project_or_donation: list[Union[CharityProject, Donation]],
+        funds: Union[CharityProject, Donation],
+        session: AsyncSession
     ) -> Union[CharityProject, Donation]:
-        """Распределине средств."""
+        """Распределение средств."""
 
-        if project_or_donation:
-            for item in project_or_donation:
-                funds_diff = funds.full_amount - funds.invested_amount
-                item_diff = item.full_amount - item.invested_amount
+        if not project_or_donation:
+            await session.commit()
+            await session.refresh(funds)
+            return funds
 
-                if funds_diff >= item_diff:
-                    funds.invested_amount += item_diff
-                    item.invested_amount = item.full_amount
-                    self.close_invested(item)
+        for current_project_or_donation in project_or_donation:
+            funds_diff = funds.full_amount - funds.invested_amount
+            item_diff = (
+                current_project_or_donation.full_amount -
+                current_project_or_donation.invested_amount
+            )
 
-                    if funds_diff == item_diff:
-                        self.close_invested(funds)
+            if funds_diff >= item_diff:
+                funds.invested_amount += item_diff
+                current_project_or_donation.invested_amount = (
+                    current_project_or_donation.full_amount
+                )
+                self.close_invested(current_project_or_donation)
 
-                else:
-                    item.invested_amount += funds_diff
-                    funds.invested_amount = funds.full_amount
+                if funds_diff == item_diff:
                     self.close_invested(funds)
                     break
+            else:
+                current_project_or_donation.invested_amount += funds_diff
+                funds.invested_amount = funds.full_amount
+                self.close_invested(funds)
+                break
+
+            session.add(current_project_or_donation)
+        session.add(funds)
+        await session.commit()
+        await session.refresh(funds)
 
         return funds
 
@@ -64,16 +79,19 @@ class CRUDDonation(CRUD):
 
     async def get_invested_charity_projects(
             self,
-            charity_project: Type[Union[CharityProject, Donation]],
+            charity_project: Union[type[CharityProject], type[Donation]],
             session: AsyncSession
     ) -> Optional[list[Union[CharityProject, Donation]]]:
         """
+        Получение всех проектов.
+
         Получение всех проектов, в которые нужно инвестировать
-        или средств, которые не были проинвестированны."""
+        или средств, которые не были проинвестированны.
+        """
 
         invested_projects = await session.execute(
             select(charity_project).where(
-                charity_project.fully_invested == 0
+                charity_project.fully_invested.is_(False)
             ).order_by(charity_project.create_date)
         )
         return invested_projects.scalars().all()

@@ -4,7 +4,7 @@ from .base_model import BaseModel
 
 
 class Donation(BaseModel):
-    """Модель пожертвований, доп. поля наследуются от BaseModel"""
+    """Модель пожертвований, доп. поля наследуются от BaseModel."""
 
     user_id = Column(
         Integer,
