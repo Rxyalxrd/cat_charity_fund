@@ -66,7 +66,7 @@ async def create_new_charity_projects(
     '/{project_id}',
     response_model=CharityProjectsRead,
     response_model_exclude_none=True,
-    dependencies=[Depends(current_superuser)],
+    dependencies=(Depends(current_superuser),),
 )
 async def update_charity_project(
     project_id: int,
@@ -92,14 +92,14 @@ async def update_charity_project(
             project_id, new_data.full_amount, session
         )
 
-    charity_project = await charity_project_crud.update(
-        charity_project, new_data, session
-    )
-
     if charity_project.invested_amount >= charity_project.full_amount:
         charity_project.fully_invested = True
         await session.commit()
         await session.refresh(charity_project)
+
+    charity_project = await charity_project_crud.update(
+        charity_project, new_data, session
+    )
 
     return charity_project
 
@@ -107,7 +107,7 @@ async def update_charity_project(
 @router.delete(
     '/{project_id}',
     response_model=CharityProjectsRead,
-    dependencies=[Depends(current_superuser)],
+    dependencies=(Depends(current_superuser),),
 )
 async def delete_charity_project(
     project_id: int,

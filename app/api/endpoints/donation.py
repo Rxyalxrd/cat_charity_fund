@@ -41,9 +41,7 @@ async def get_my_donations(
 ):
     """Вернуть список пожертвований пользователя, выполняющего запрос."""
 
-    my_donations = await donation_crud.get_user_donations(user.id, session)
-
-    return my_donations
+    return await donation_crud.get_user_donations(user.id, session)
 
 
 @router.post(

@@ -32,10 +32,7 @@ class DonationCreate(BaseDonationsSchemas):
 
 
 class UserDonationsRead(BaseDonationsSchemas):
-    """
-    Схема для получения списка пожертвований
-    пользователя, выполняющего запрос.
-    """
+    """Схема для получения списка пожертвований пользователя."""
 
     id: int = Field(..., title='id пожертвования')
     create_date: datetime = Field(..., title='Дата внесения пожертвования')

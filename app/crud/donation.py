@@ -1,3 +1,4 @@
+from asyncio import get_event_loop
 from typing import Optional, Union
 from datetime import datetime
 
@@ -49,15 +50,25 @@ class CRUDDonation(CRUD):
                 current_project_or_donation.invested_amount = (
                     current_project_or_donation.full_amount
                 )
-                self.close_invested(current_project_or_donation)
+
+                await get_event_loop().run_in_executor(
+                    None, self.close_invested, current_project_or_donation
+                )
 
                 if funds_diff == item_diff:
-                    self.close_invested(funds)
+                    await get_event_loop().run_in_executor(
+                        None, self.close_invested, funds
+                    )
+
                     break
             else:
                 current_project_or_donation.invested_amount += funds_diff
                 funds.invested_amount = funds.full_amount
-                self.close_invested(funds)
+
+                await get_event_loop().run_in_executor(
+                    None, self.close_invested, funds
+                )
+
                 break
 
             session.add(current_project_or_donation)
